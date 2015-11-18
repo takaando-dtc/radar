@@ -50,7 +50,7 @@ function RadarChart(id, data, options) {
     });
   });
   var rScale = function (v, index) {
-    var M = (index !== undefined) ? maxValues[index] : maxValue;
+    var M = maxValues[index];
     return v / M * radius;
   };
 		
@@ -104,8 +104,8 @@ function RadarChart(id, data, options) {
 		.style("font-size", "11px")
 		.attr("text-anchor", "middle")
 		.attr("dy", "0.35em")
-		.attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor, i) * Math.cos(angleSlice*i - Math.PI/2); })
-		.attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor, i) * Math.sin(angleSlice*i - Math.PI/2); })
+		.attr("x", function(d, i){ return radius * cfg.labelFactor * Math.cos(angleSlice*i - Math.PI/2); })
+		.attr("y", function(d, i){ return radius * cfg.labelFactor * Math.sin(angleSlice*i - Math.PI/2); })
 		.text(function(d){return d})
 		.call(wrap, cfg.wrapWidth);
 

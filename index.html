@@ -10,6 +10,9 @@
 
 		<!-- D3.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+
+    <!-- lodash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.js"></script>
 		
 		<style>
 			body {
@@ -51,7 +54,32 @@
 			////////////////////////// Data ////////////////////////////// 
 			////////////////////////////////////////////////////////////// 
 
-			var data = [
+      var columns = [
+        "data1",
+        "data2",
+        "data3",
+        "data4",
+        "data5",
+        "data6",
+        "data7",
+        "data8"
+      ];
+      var sourceData = [
+        [900.0,5.5,6.5,1.4,100.0,650.0,7.5,2.1],
+        [700.0,5.5,6.0,1.1,100.0,650.0,10.5,1.6],
+        [150.0, 150.0, 150.0, 150.0, 105.625, 97.1428604125977, 92.4999923706055, 150.0],
+        [150.0, 150.0, 150.0, 150.0, 100.625, 87.6190490722656, 74.1666641235352, 150.0],
+        [150.0, 150.0, 150.0, 150.0, 111.875, 97.1428604125977, 113.333335876465, 150.0],
+        [150.0, 150.0, 150.0, 150.0, 106.875, 87.6190490722656, 94.9999923706055, 150.0]
+      ];
+
+      var data = sourceData.map(function (series) {
+          return series.map(function (column, index) {
+            return {axis: columns[index], value: column};
+          });
+      });
+//console.log(data2);
+      var data2 = [
 					  [//iPhone
 						{axis:"Battery Life",value:0.22},
 						{axis:"Brand",value:0.28},
@@ -81,12 +109,22 @@
 						{axis:"To Be A Smartphone",value:0.30}
 					  ]
 					];
+         // */
 			////////////////////////////////////////////////////////////// 
 			//////////////////// Draw the Chart ////////////////////////// 
 			////////////////////////////////////////////////////////////// 
 
 			var color = d3.scale.ordinal()
-				.range(["#EDC951","#CC333F","#00A0B0"]);
+        .range([
+            "#EDC951",
+            "#CC333F",
+            "#00A0B0",
+            "#EDC951",
+            "#CC333F",
+            "#00A0B0",
+            "#EDC951",
+            "#CC333F"
+        ]);
 				
 			var radarChartOptions = {
 			  w: width,
@@ -94,7 +132,7 @@
 			  margin: margin,
 			  maxValue: 0.5,
 			  levels: 5,
-			  roundStrokes: true,
+			  //roundStrokes: true,
 			  color: color
 			};
 			//Call function to draw the Radar chart

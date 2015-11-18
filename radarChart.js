@@ -11,7 +11,7 @@ function RadarChart(id, data, options) {
 	 h: 600,				//Height of the circle
 	 margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins of the SVG
 	 levels: 3,				//How many levels or inner circles should there be drawn
-	 maxValue: 0, 			//What is the value that the biggest circle will represent
+	 maxValue: [0], 			//What is the value that the biggest circle will represent
 	 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
 	 wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
 	 opacityArea: 0.35, 	//The opacity of the area of the blob
@@ -29,9 +29,6 @@ function RadarChart(id, data, options) {
 	  }//for i
 	}//if
 	
-	//If the supplied maxValue is smaller than the actual one, replace by the max in the data
-	var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
-		
 	var allAxis = (data[0].map(function(i, j){return i.axis})),	//Names of each axis
 		total = allAxis.length,					//The number of different axes
 		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
@@ -39,18 +36,8 @@ function RadarChart(id, data, options) {
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
 
 	//Scale for the radius
-  var maxValues = allAxis.map(function (axis) {
-    return d3.max(data, function (series) {
-      for (var i = 0; i < series.length; i++) {
-        if (series[i].axis === axis) {
-          return series[i].value;
-        }
-      }
-      return undefined;
-    });
-  });
   var rScale = function (v, index) {
-    var M = maxValues[index];
+    var M = cfg.maxValue[index];
     return v / M * radius;
   };
 		

@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////
 	
 function RadarChart(id, data, options) {
+  var ANGLE_OFFSET = Math.PI * 2 / 16 + Math.PI/2;
 	var cfg = {
 	 w: 600,				//Width of the circle
 	 h: 600,				//Height of the circle
@@ -14,7 +15,7 @@ function RadarChart(id, data, options) {
 	 maxValue: [0], 			//What is the value that the biggest circle will represent
 	 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
 	 wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
-	 opacityArea: 0.35, 	//The opacity of the area of the blob
+   opacityArea: 1.0,//0.35, 	//The opacity of the area of the blob
 	 dotRadius: 4, 			//The size of the colored circles of each blog
 	 opacityCircles: 0.1, 	//The opacity of the circles of each blob
 	 strokeWidth: 2, 		//The width of the stroke around each blob
@@ -91,8 +92,8 @@ function RadarChart(id, data, options) {
 		.style("font-size", "11px")
 		.attr("text-anchor", "middle")
 		.attr("dy", "0.35em")
-		.attr("x", function(d, i){ return radius * cfg.labelFactor * Math.cos(angleSlice*i - Math.PI/2); })
-		.attr("y", function(d, i){ return radius * cfg.labelFactor * Math.sin(angleSlice*i - Math.PI/2); })
+		.attr("x", function(d, i){ return radius * cfg.labelFactor * Math.cos(angleSlice*i - ANGLE_OFFSET); })
+		.attr("y", function(d, i){ return radius * cfg.labelFactor * Math.sin(angleSlice*i - ANGLE_OFFSET); })
 		.text(function(d){return d})
 		.call(wrap, cfg.wrapWidth);
 
@@ -104,23 +105,28 @@ function RadarChart(id, data, options) {
 	var radarLine = d3.svg.line.radial()
 		.interpolate("linear-closed")
 		.radius(function(d, i) { return rScale(d.value, i); })
-		.angle(function(d,i) {	return i*angleSlice; });
+		.angle(function(d,i) {	return i*angleSlice + ANGLE_OFFSET; });
+	var zeroLine = d3.svg.line.radial()
+		.interpolate("linear-closed")
+		.radius(function(d, i) { return rScale(d.value, i) * 0.5; })
+		.angle(function(d,i) {	return i*angleSlice + ANGLE_OFFSET; });
 		
 	if(cfg.roundStrokes) {
 		radarLine.interpolate("cardinal-closed");
+		zeroLine.interpolate("cardinal-closed");
 	}
-				
+
 	//Create a wrapper for the blobs	
 	var blobWrapper = g.selectAll(".radarWrapper")
 		.data(data)
 		.enter().append("g")
 		.attr("class", "radarWrapper");
-			
+
 	//Append the backgrounds	
+  var path = 
 	blobWrapper
 		.append("path")
 		.attr("class", "radarArea")
-		.attr("d", function(d,i) { return radarLine(d); })
 		.style("fill", function(d,i) { return cfg.color(i); })
 		.style("fill-opacity", cfg.opacityArea)
 		.on('mouseover', function (d,i){
@@ -138,16 +144,32 @@ function RadarChart(id, data, options) {
 			d3.selectAll(".radarArea")
 				.transition().duration(200)
 				.style("fill-opacity", cfg.opacityArea);
-		});
+		})
+		.attr("d", function(d,i) { return zeroLine(d); })
+    .attr("transform", "rotate(-10)");
+
+  function update(newData) {
+    path
+      .transition()
+      .duration(1000)
+      .ease("elastic")
+      .attr("transform", "rotate(0)")
+      .attr("d", function(d,i) {
+        return radarLine(newData[i]);
+      });
+  }
+  update(data);
+
 		
 	//Create the outlines	
-	blobWrapper.append("path")
+    /*blobWrapper.append("path")
 		.attr("class", "radarStroke")
 		.attr("d", function(d,i) { return radarLine(d); })
 		.style("stroke-width", cfg.strokeWidth + "px")
 		.style("stroke", function(d,i) { return cfg.color(i); })
 		.style("fill", "none")
 		.style("filter" , "url(#glow)");		
+    */
 
   /////////////////////////////////////////////////////////
 	/////////////////// Helper Function /////////////////////
@@ -180,4 +202,8 @@ function RadarChart(id, data, options) {
 		}
 	  });
 	}//wrap	
+
+  return {
+    update: update
+  };
 }//RadarChart
